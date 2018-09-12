@@ -81,7 +81,7 @@ class Rabbitmq {
         if(!empty($queue)) {
 
             // We declare the queue
-            $this->channel->queue_declare($queue, false, $permanent, false, false, false, $queue_arguments, null);
+            $this->channel->queue_declare($queue, false, $permanent, false, false, false, new \PhpAmqpLib\Wire\AMQPTable($queue_arguments), null);
 
             // If the informations given are in an array, we convert it in json format
             $data = (is_array($data)) ? json_encode($data) : $data;
@@ -113,7 +113,7 @@ class Rabbitmq {
         if(!empty($queue)) {
 
             // Declaring the queue again
-            $this->channel->queue_declare($queue, false, $permanent, false, false, false, $queue_arguments, null);
+            $this->channel->queue_declare($queue, false, $permanent, false, false, false, new \PhpAmqpLib\Wire\AMQPTable($queue_arguments), null);
 
             // Limit the number of unacknowledged
             $this->channel->basic_qos(null, 1, null);
