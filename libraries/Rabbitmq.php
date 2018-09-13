@@ -20,6 +20,8 @@ class Rabbitmq {
 
     // Default public vars
     public $connexion;
+
+    /* @var \PhpAmqpLib\Channel\AMQPChannel $channel */
     public $channel;
     public $show_output;
 
@@ -75,13 +77,14 @@ class Rabbitmq {
      * @param  array   $params                  Additional parameters
      * @return bool
      */
-    public function push($queue = null, $data = null, $permanent = false, $params = array(), $queue_arguments = array())
+    public function push($queue = null, $data = null, $permanent = false, $params = array(), $queue_arguments = null)
     {
         // We check if the queue is not empty then we declare the queue
         if(!empty($queue)) {
 
             // We declare the queue
-            $this->channel->queue_declare($queue, false, $permanent, false, false, false, new \PhpAmqpLib\Wire\AMQPTable($queue_arguments), null);
+            $amqp_queue_arguments = is_array($queue_arguments) ? new PhpAmqpLib\Wire\AMQPTable($queue_arguments) : null;
+            $this->channel->queue_declare($queue, false, $permanent, false, false, false, $amqp_queue_arguments, null);
 
             // If the informations given are in an array, we convert it in json format
             $data = (is_array($data)) ? json_encode($data) : $data;
@@ -107,13 +110,14 @@ class Rabbitmq {
      * @param  bool    $permanent Permanent mode of the queue
      * @param  array   $callback  Callback
      */
-    public function pull($queue = null, $permanent = false, array $callback = array(), $queue_arguments = array())
+    public function pull($queue = null, $permanent = false, array $callback = array(), $queue_arguments = null)
     {
         // We check if the queue is not empty then we declare the queue
         if(!empty($queue)) {
 
             // Declaring the queue again
-            $this->channel->queue_declare($queue, false, $permanent, false, false, false, new \PhpAmqpLib\Wire\AMQPTable($queue_arguments), null);
+            $amqp_queue_arguments = is_array($queue_arguments) ? new PhpAmqpLib\Wire\AMQPTable($queue_arguments) : null;
+            $this->channel->queue_declare($queue, false, $permanent, false, false, false, $amqp_queue_arguments, null);
 
             // Limit the number of unacknowledged
             $this->channel->basic_qos(null, 1, null);
