@@ -110,7 +110,7 @@ class Rabbitmq {
      * @param  bool    $permanent Permanent mode of the queue
      * @param  array   $callback  Callback
      */
-    public function pull($queue = null, $permanent = false, array $callback = array(), $queue_arguments = null)
+    public function pull($queue = null, $permanent = false, array $callback = array(), $queue_arguments = null, $no_ack = true)
     {
         // We check if the queue is not empty then we declare the queue
         if(!empty($queue)) {
@@ -123,7 +123,7 @@ class Rabbitmq {
             $this->channel->basic_qos(null, 1, null);
 
             // Define consuming with 'process' callback
-            $this->channel->basic_consume($queue, '', false, true, false, false, $callback);
+            $this->channel->basic_consume($queue, '', false, (bool)$no_ack, false, false, $callback);
 
             // Continue the process of CLI command, waiting for others instructions
             while (count($this->channel->callbacks)) {
